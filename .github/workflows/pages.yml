@@ -24,26 +24,38 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build the standalone planner page
+      - name: Build a self-contained planner site
         shell: bash
         run: |
           set -euo pipefail
           test -s planner.b64
+          rm -rf dist
+          mkdir -p dist
           python - <<'PY'
           import base64, gzip, pathlib
-          data = base64.b64decode(pathlib.Path('planner.b64').read_text().strip())
-          html = gzip.decompress(data).decode('utf-8')
-          pathlib.Path('index.html').write_text(html, encoding='utf-8')
-          print('Built index.html:', len(html), 'bytes')
+          raw = pathlib.Path('planner.b64').read_text(encoding='utf-8').strip()
+          html = gzip.decompress(base64.b64decode(raw)).decode('utf-8')
+          sw = """const CACHE='avm-planner-v3';const ASSETS=['./','./index.html','./manifest.webmanifest','./sw.js'];self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request).then(r=>{const cp=r.clone();caches.open(CACHE).then(x=>x.put(e.request,cp));return r}).catch(()=>caches.match('./index.html'))))});"""
+          inject = "<script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=3',{updateViaCache:'none'}).catch(()=>{}));}</script>"
+          if '</body>' in html:
+              html = html.replace('</body>', inject + '</body>', 1)
+          else:
+              html += inject
+          pathlib.Path('dist/index.html').write_text(html, encoding='utf-8')
+          pathlib.Path('dist/manifest.webmanifest').write_text('{"name":"AVM Study Planner","short_name":"AVM Planner","start_url":"./","display":"standalone","background_color":"#F7F5EF","theme_color":"#4f46e5","lang":"fa","dir":"rtl"}', encoding='utf-8')
+          pathlib.Path('dist/sw.js').write_text(sw, encoding='utf-8')
+          print('Built self-contained index.html:', len(html), 'bytes')
           PY
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: .
+          path: dist
 
       - name: Deploy to GitHub Pages
         id: deployment
