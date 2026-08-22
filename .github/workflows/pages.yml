@@ -24,6 +24,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Build the standalone planner page
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s planner.b64
+          python - <<'PY'
+          import base64, gzip, pathlib
+          data = base64.b64decode(pathlib.Path('planner.b64').read_text().strip())
+          html = gzip.decompress(data).decode('utf-8')
+          pathlib.Path('index.html').write_text(html, encoding='utf-8')
+          print('Built index.html:', len(html), 'bytes')
+          PY
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
