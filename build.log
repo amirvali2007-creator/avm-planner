@@ -1,9 +1,9 @@
 /home/runner/work/avm-planner/avm-planner/build.js:20
-const start=html.indexOf('function renderMonthlyCalendar()'),end=html.indexOf('function changeWeek',start);if(start<0||end<0)throw Error('monthly renderer missing');
-                                                                                                                             ^
+let start=html.indexOf('function renderMonthlyCalendar()'),end;if(start<0){start=html.indexOf('function updateMetricsAndCharts()');if(start<0)throw Error('monthly insertion point missing');end=start}else{end=html.indexOf('function changeWeek',start);if(end<0)end=start}
+                                                                                                                                              ^
 
-Error: monthly renderer missing
-    at Object.<anonymous> (/home/runner/work/avm-planner/avm-planner/build.js:20:132)
+Error: monthly insertion point missing
+    at Object.<anonymous> (/home/runner/work/avm-planner/avm-planner/build.js:20:149)
     at Module._compile (node:internal/modules/cjs/loader:1781:14)
     at Object..js (node:internal/modules/cjs/loader:1913:10)
     at Module.load (node:internal/modules/cjs/loader:1505:32)
