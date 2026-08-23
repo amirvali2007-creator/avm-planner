@@ -1,0 +1,1 @@
+The production root must use FINAL_ROOT_SOURCE.html content directly for index.html.
