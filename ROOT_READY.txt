@@ -1,1 +1,1 @@
-ROOT index switch pending via tree commit.
+Final root publication uses the self-contained planner source blob. Do not load app.html or planner.b64 from the root.
