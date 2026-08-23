@@ -4,7 +4,7 @@ html=html.replace(/\s*import \{[^}]+\} from \"https:\/\/www\.gstatic\.com\/fireb
 html=html.replace('<script type="module">','<script>');
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 if(!html.includes('const MONTHLY_NOTES_KEY')){html=html.replace(/(let currentMonthOffset\s*=\s*[^;]+;)/,`$1\nconst MONTHLY_NOTES_KEY='avm_planner_monthly_notes_v1';let monthlyNotes={};`)}
-if(html.includes('function saveLocalState()')){
+if(html.includes('function saveLocalState()')&&!html.includes('const savedMonthlyNotes')){
  html=html.replace(/(function saveLocalState\(\)\s*\{\s*try\s*\{[\s\S]*?localStorage\.setItem\([^\n]+SUBJECTS[^\n]+\);)/,`$1\nlocalStorage.setItem(MONTHLY_NOTES_KEY,JSON.stringify(monthlyNotes));`);
  html=html.replace(/(const savedSubjects\s*=\s*localStorage\.getItem\([^\n]+SUBJECTS[^\n]+\);)/,`$1\nconst savedMonthlyNotes=localStorage.getItem(MONTHLY_NOTES_KEY);`);
  html=html.replace(/(if \(savedSubjects\)\s*\{[\s\S]*?\n\s*\})/,`$1\nif(savedMonthlyNotes){const n=JSON.parse(savedMonthlyNotes);if(n&&typeof n==='object')monthlyNotes=n;}`);
@@ -19,6 +19,6 @@ const fn=String.raw`function renderMonthlyCalendar(){const grid=document.getElem
 function updateMonthlyNote(dateStr,value){monthlyNotes[dateStr]=value;saveLocalState()}
 `;
 html=html.slice(0,start)+fn+html.slice(end);
-if(!html.includes('id="monthly-calendar-grid"'))throw Error('monthly grid missing');if(!html.includes('function updateMonthlyNote'))throw Error('monthly editor missing');if(!html.includes('updateField'))throw Error('table editor missing');if(!html.includes('modal-subject-select'))throw Error('subject selector missing');if(!html.includes('type="time"'))throw Error('time editor missing');
+if(!html.includes('id="monthly-calendar-grid"'))throw Error('monthly grid missing');if(!html.includes('function updateMonthlyNote'))throw Error('monthly editor missing');if(!html.includes('updateField'))throw Error('table editor missing');if(!html.includes('modal-subject-select'))throw Error('subject selector missing');if(!html.includes('type="time"'))throw Error('time editor missing');if(!html.includes('type="date"'))throw Error('date editor missing');if(!html.includes('onchange="updateField'))throw Error('table onchange editor missing');if(!html.includes('<textarea'))throw Error('monthly textarea editor missing');if(html.includes('<script type="module">'))throw Error('module script remains');if(html.includes('gstatic.com/firebase'))throw Error('Firebase import remains');
 const inlineFns=[...new Set([...html.matchAll(/\b(?:onclick|onchange|onsubmit|oninput)="\s*([A-Za-z_$][\w$]*)\s*\(/g)].map(m=>m[1]))];const lastScriptClose=html.lastIndexOf('</script>');if(lastScriptClose<0)throw Error('script close missing');html=html.slice(0,lastScriptClose)+`\nObject.assign(window,{${inlineFns.join(',')}});\n`+html.slice(lastScriptClose);
 fs.writeFileSync('index.html',html);console.log('AVM build OK',html.length);
