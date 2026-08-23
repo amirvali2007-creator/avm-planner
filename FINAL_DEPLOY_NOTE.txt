@@ -1,0 +1,1 @@
+Final root deployment: index.html is the self-contained editable AVM planner.
