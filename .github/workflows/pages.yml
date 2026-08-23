@@ -23,8 +23,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - name: Build direct editable planner
-        run: node build.js > build.log 2>&1
+      - name: Build editable planner (fallback if legacy payload is incomplete)
+        run: node build.js > build.log 2>&1 || node fallback.js >> build.log 2>&1
       - name: Commit the exact built root
         run: |
           git config user.name "github-actions[bot]"
