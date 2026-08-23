@@ -1,3 +1,8 @@
-self.addEventListener('install',event=>event.waitUntil(self.skipWaiting()));
-self.addEventListener('activate',event=>event.waitUntil(self.registration.unregister().then(()=>self.clients.claim())));
-self.addEventListener('fetch',event=>{if(event.request.method==='GET') event.respondWith(fetch(event.request,{cache:'no-store'}));});
+self.addEventListener('install', event => self.skipWaiting());
+self.addEventListener('activate', event => {
+  event.waitUntil((async () => {
+    await self.registration.unregister();
+    const clients = await self.clients.matchAll({type:'window'});
+    for (const client of clients) client.navigate(client.url);
+  })());
+});
