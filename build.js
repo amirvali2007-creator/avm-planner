@@ -1,5 +1,7 @@
 const fs=require('fs'),zlib=require('zlib');
 let html=zlib.gunzipSync(Buffer.from(fs.readFileSync('planner.b64','utf8').replace(/\s/g,''),'base64')).toString('utf8');
+html=html.replace(/\s*import \{[^}]+\} from \"https:\/\/www\.gstatic\.com\/firebase[^\n]+\n/g,'');
+html=html.replace('<script type="module">','<script>');
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 if(!html.includes('const MONTHLY_NOTES_KEY')){html=html.replace(/(let currentMonthOffset\s*=\s*[^;]+;)/,`$1\nconst MONTHLY_NOTES_KEY='avm_planner_monthly_notes_v1';let monthlyNotes={};`)}
 if(html.includes('function saveLocalState()')){
@@ -18,4 +20,5 @@ function updateMonthlyNote(dateStr,value){monthlyNotes[dateStr]=value;saveLocalS
 `;
 html=html.slice(0,start)+fn+html.slice(end);
 if(!html.includes('id="monthly-calendar-grid"'))throw Error('monthly grid missing');if(!html.includes('function updateMonthlyNote'))throw Error('monthly editor missing');if(!html.includes('updateField'))throw Error('table editor missing');if(!html.includes('modal-subject-select'))throw Error('subject selector missing');if(!html.includes('type="time"'))throw Error('time editor missing');
+const inlineFns=[...new Set([...html.matchAll(/\b(?:onclick|onchange|onsubmit|oninput)="\s*([A-Za-z_$][\w$]*)\s*\(/g)].map(m=>m[1]))];const lastScriptClose=html.lastIndexOf('</script>');if(lastScriptClose<0)throw Error('script close missing');html=html.slice(0,lastScriptClose)+`\nObject.assign(window,{${inlineFns.join(',')}});\n`+html.slice(lastScriptClose);
 fs.writeFileSync('index.html',html);console.log('AVM build OK',html.length);
