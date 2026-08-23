@@ -1,16 +1,20 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta http-equiv="refresh" content="0;url=https://cdn.jsdelivr.net/gh/amirvali2007-creator/avm-planner@37104c02cf7e6ec78982f01ef5c0bdaa93465939/index.html">
-  <title>AVM Planner</title>
-  <script>
-    location.replace('https://cdn.jsdelivr.net/gh/amirvali2007-creator/avm-planner@37104c02cf7e6ec78982f01ef5c0bdaa93465939/index.html');
-  </script>
-</head>
-<body>
-  <p>Opening AVM Planner…</p>
-  <p><a href="https://cdn.jsdelivr.net/gh/amirvali2007-creator/avm-planner@37104c02cf7e6ec78982f01ef5c0bdaa93465939/index.html">Open AVM Planner</a></p>
-</body>
-</html>
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#4f46e5"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="AVM Planner"><title>AVM Planner</title><style>html,body{margin:0;height:100%;background:#f7f5ef}#boot{height:100%;display:grid;place-items:center;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0D3D2D;font-size:14px}.error{padding:24px;text-align:center}</style></head><body><div id="boot">در حال بارگذاری AVM Planner…</div><script>
+(async()=>{
+  const boot=document.getElementById('boot');
+  const sources=[
+    'https://raw.githubusercontent.com/amirvali2007-creator/avm-planner/main/index.html',
+    'https://cdn.jsdelivr.net/gh/amirvali2007-creator/avm-planner@main/index.html'
+  ];
+  let last='';
+  for(const base of sources){
+    try{
+      const r=await fetch(base+'?v='+Date.now(),{cache:'no-store',redirect:'follow'});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const html=await r.text();
+      if(!html || html.length<10000 || html.includes('planner.b64')) throw new Error('invalid planner source');
+      document.open();document.write(html);document.close();return;
+    }catch(e){last=e}
+  }
+  boot.innerHTML='<div class="error"><b>AVM Planner could not load.</b><br><small>'+String(last?.message||last||'unknown error')+'</small></div>';
+})();
+</script></body></html>
