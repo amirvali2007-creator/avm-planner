@@ -1,1 +1,30 @@
-<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#4f46e5"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="AVM Planner"><link rel="manifest" href="./manifest.webmanifest?v=20260823"><title>AVM Planner</title></head><body><div style="font-family:system-ui;text-align:center;padding:40px">در حال بارگذاری AVM Planner…</div><script>(async()=>{try{if('serviceWorker'in navigator){const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.unregister()))}if(window.caches){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}}catch(e){}location.replace('./app.html')})();</script></body></html>
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#4f46e5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="پلنر تحصیلی AVM">
+<link rel="manifest" href="./manifest.webmanifest">
+<title>پلنر تحصیلی AVM</title>
+</head>
+<body>
+<div style="font-family:system-ui;text-align:center;padding:40px">در حال بارگذاری پلنر تحصیلی AVM…</div>
+<script>
+(async()=>{
+  try{
+    if('serviceWorker' in navigator){
+      const rs=await navigator.serviceWorker.getRegistrations();
+      await Promise.all(rs.map(r=>r.unregister()));
+    }
+    if(window.caches){
+      const ks=await caches.keys();
+      await Promise.all(ks.map(k=>caches.delete(k)));
+    }
+  }catch(e){}
+  location.replace('./app.html');
+})();
+</script>
+</body>
+</html>
