@@ -24,7 +24,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Build direct editable planner
-        run: node build.js
+        run: node build.js > build.log 2>&1
       - name: Commit the exact built root
         run: |
           git config user.name "github-actions[bot]"
@@ -41,3 +41,13 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Publish build failure diagnostics
+        if: failure()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          printf '\n--- BUILD FAILED ---\n' >> build.log
+          git add build.log
+          git commit -m "diagnostic: build failure [skip ci]" || true
+          git push || true
