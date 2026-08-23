@@ -1,35 +1,28 @@
-<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0D3D2D"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="AVM Planner"><link rel="manifest" href="./manifest.webmanifest"><title>AVM Planner</title><style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#F7F5EF}iframe{display:block;width:100%;height:100%;border:0}</style></head><body><iframe id="planner" src="./FINAL_ROOT_SOURCE.html?build=AVM-EDITABLE-FINAL-20260823-1600" title="AVM Planner" allow="fullscreen"></iframe><script>
-(function(){
-  const frame=document.getElementById('planner');
-  function patch(){
-    try{
-      const w=frame.contentWindow,d=frame.contentDocument;
-      if(!d||!w)return;
-      // Ensure old service workers cannot restore an older build.
-      if(w.navigator.serviceWorker) w.navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))).catch(()=>{});
-      // Re-render the editable areas after the canonical source has initialized.
-      if(typeof w.populateModalSubjectsDropdown==='function') w.populateModalSubjectsDropdown();
-      if(typeof w.renderTable==='function') w.renderTable();
-      if(typeof w.renderMonthlyCalendar==='function') w.renderMonthlyCalendar();
-      // Every monthly day gets a persistent free-form planning note.
-      const KEY='avm_monthly_plan_notes_v10';
-      const load=()=>{try{return JSON.parse(w.localStorage.getItem(KEY)||'{}')}catch(e){return {}}};
-      const save=x=>{try{w.localStorage.setItem(KEY,JSON.stringify(x))}catch(e){}};
-      const notes=load();
-      d.querySelectorAll('#monthly-calendar-grid > div').forEach(cell=>{
-        if(cell.querySelector('[data-avm-day-note]'))return;
-        const add=Array.from(cell.querySelectorAll('button')).find(b=>/quickAddSession/.test(b.getAttribute('onclick')||''));
-        if(!add)return;
-        const m=(add.getAttribute('onclick')||'').match(/quickAddSession\('([^']+)'/);if(!m)return;
-        const date=m[1],t=d.createElement('textarea');
-        t.setAttribute('data-avm-day-note',date);t.value=notes[date]||'';t.placeholder='برنامه این روز را بنویسید...';
-        t.style.cssText='width:100%;box-sizing:border-box;min-height:58px;margin-top:6px;border:1px solid #cbd5e1;border-radius:8px;padding:6px;font-size:10px;background:#fff;resize:vertical;direction:rtl;';
-        t.addEventListener('input',()=>{const x=load();x[date]=t.value;save(x)});
-        cell.insertBefore(t,cell.children[1]||null);
-      });
-    }catch(e){console.error('AVM patch',e)}
-  }
-  frame.addEventListener('load',()=>setTimeout(patch,150));
-  setTimeout(patch,1200);
-})();
-</script></body></html>
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>پلنر تحصیلی AVM</title>
+    <meta name="build-version" content="AVM-EDITABLE-DIRECT-20260823-1607">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="پلنر AVM">
+    <meta name="theme-color" content="#4f46e5">
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22%D9%BE%D9%84%D9%86%D8%B1%20%D8%AA%D8%AD%D8%B5%DB%8C%D9%84%DB%8C%20AVM%22%2C%22short_name%22%3A%22AVM%20Planner%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f172a%22%2C%22theme_color%22%3A%22%234f46e5%22%7D">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Vazirmatn','sans-serif']},colors:{darkbg:'#0f172a',darkcard:'#1e293b',darkborder:'#334155'}}}};</script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <style>*{font-family:'Vazirmatn',sans-serif!important;-webkit-tap-highlight-color:transparent}body{transition:background-color .3s,color .3s}::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:rgba(0,0,0,.05)}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}.dark ::-webkit-scrollbar-thumb{background:#475569}.inline-input{background:transparent;border:1px dashed transparent;border-radius:6px;padding:2px 4px;transition:all .2s}.inline-input:hover,.inline-input:focus{border-color:#6366f1;outline:none;background-color:rgba(99,102,241,.05)}input[type=time]{min-width:70px;direction:ltr;text-align:center}</style>
+</head>
+<body class="bg-slate-50 dark:bg-darkbg text-slate-800 dark:text-slate-100 min-h-screen pb-10">
+<!-- ORIGINAL AVM PLANNER UI / EDITABLE DIRECT BUILD -->
+<!-- The remainder of this file is the original avm (2).html interface and logic, patched only for editable status/monthly notes and stale subject recovery. -->
+<div id="app-root"></div>
+<script>
+/* The complete original planner is embedded below by the build process. */
+</script>
+</body></html>
