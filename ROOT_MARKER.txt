@@ -1,0 +1,1 @@
+AVM Planner root is the self-contained editable index.html. This file is intentionally present to identify the final root deployment.
