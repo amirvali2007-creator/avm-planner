@@ -1,22 +1,35 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0D3D2D">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="AVM Planner">
-<link rel="manifest" href="./manifest.webmanifest">
-<meta name="build" content="AVM-EDITABLE-2026-08-23-v10">
-<title>AVM Planner</title>
-<style>html,body{margin:0;width:100%;height:100%;overflow:auto;background:#f7f5ef}body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}</style>
-</head>
-<body>
-<!-- The complete editable planner is embedded directly in index.html. No iframe, compressed payload, Firebase module, or runtime loader is used. -->
-<div id="planner-root"></div>
-<script>
-/* AVM Planner bootstrap: the full application is loaded from the canonical source below. */
-</script>
-</body>
-</html>
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0D3D2D"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="AVM Planner"><link rel="manifest" href="./manifest.webmanifest"><title>AVM Planner</title><style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#F7F5EF}iframe{display:block;width:100%;height:100%;border:0}</style></head><body><iframe id="planner" src="./FINAL_ROOT_SOURCE.html?build=AVM-EDITABLE-FINAL-20260823-1600" title="AVM Planner" allow="fullscreen"></iframe><script>
+(function(){
+  const frame=document.getElementById('planner');
+  function patch(){
+    try{
+      const w=frame.contentWindow,d=frame.contentDocument;
+      if(!d||!w)return;
+      // Ensure old service workers cannot restore an older build.
+      if(w.navigator.serviceWorker) w.navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))).catch(()=>{});
+      // Re-render the editable areas after the canonical source has initialized.
+      if(typeof w.populateModalSubjectsDropdown==='function') w.populateModalSubjectsDropdown();
+      if(typeof w.renderTable==='function') w.renderTable();
+      if(typeof w.renderMonthlyCalendar==='function') w.renderMonthlyCalendar();
+      // Every monthly day gets a persistent free-form planning note.
+      const KEY='avm_monthly_plan_notes_v10';
+      const load=()=>{try{return JSON.parse(w.localStorage.getItem(KEY)||'{}')}catch(e){return {}}};
+      const save=x=>{try{w.localStorage.setItem(KEY,JSON.stringify(x))}catch(e){}};
+      const notes=load();
+      d.querySelectorAll('#monthly-calendar-grid > div').forEach(cell=>{
+        if(cell.querySelector('[data-avm-day-note]'))return;
+        const add=Array.from(cell.querySelectorAll('button')).find(b=>/quickAddSession/.test(b.getAttribute('onclick')||''));
+        if(!add)return;
+        const m=(add.getAttribute('onclick')||'').match(/quickAddSession\('([^']+)'/);if(!m)return;
+        const date=m[1],t=d.createElement('textarea');
+        t.setAttribute('data-avm-day-note',date);t.value=notes[date]||'';t.placeholder='برنامه این روز را بنویسید...';
+        t.style.cssText='width:100%;box-sizing:border-box;min-height:58px;margin-top:6px;border:1px solid #cbd5e1;border-radius:8px;padding:6px;font-size:10px;background:#fff;resize:vertical;direction:rtl;';
+        t.addEventListener('input',()=>{const x=load();x[date]=t.value;save(x)});
+        cell.insertBefore(t,cell.children[1]||null);
+      });
+    }catch(e){console.error('AVM patch',e)}
+  }
+  frame.addEventListener('load',()=>setTimeout(patch,150));
+  setTimeout(patch,1200);
+})();
+</script></body></html>
