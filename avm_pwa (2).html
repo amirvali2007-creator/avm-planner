@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>پلنر تحصیلی AVM</title>
+    
+    <!-- PWA & Mobile Web App Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="پلنر AVM">
+    <meta name="theme-color" content="#4f46e5">
+
+    <!-- Inline Web App Manifest Data URI -->
+    <link rel="manifest" href='data:application/manifest+json,{"name":"پلنر تحصیلی AVM","short_name":"پلنر AVM","start_url":".","display":"standalone","background_color":"#0f172a","theme_color":"#4f46e5","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/2997/2997300.png","sizes":"512x512","type":"image/png"}]}'>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Vazirmatn', 'sans-serif'],
+                    },
+                    colors: {
+                        darkbg: '#0f172a',
+                        darkcard: '#1e293b',
+                        darkborder: '#334155'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Vazirmatn Persian Font -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    
+    <style>
+        * {
+            font-family: 'Vazirmatn', sans-serif !important;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            transition: background-color 0.3s, color 0.3s;
+            user-select: none;
+        }
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+        .inline-input {
+            background: transparent;
+            border: 1px dashed transparent;
+            border-radius: 6px;
+            padding: 2px 4px;
+            transition: all 0.2s;
+        }
+        .inline-input:hover, .inline-input:focus {
+            border-color: #6366f1;
+            outline: none;
+            background-color: rgba(99, 102, 241, 0.08);
+        }
+        input[type="time"] {
+            min-width: 65px;
+            direction: ltr;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-darkbg text-slate-800 dark:text-slate-100 min-h-screen pb-12">
+
+    <!-- Header Navigation -->
+    <header class="bg-white dark:bg-darkcard border-b border-slate-200 dark:border-darkborder sticky top-0 z-30 shadow-sm transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                
+                <!-- Right Side: Dark Mode Switch & App Title -->
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleDarkMode()" id="theme-toggle" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-amber-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all text-xs font-semibold">
+                        <i id="theme-icon" class="fa-solid fa-moon text-indigo-600 dark:text-amber-400 text-sm"></i>
+                        <span id="theme-text" class="hidden sm:inline">حالت شب</span>
+                    </button>
+
+                    <div class="h-6 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block"></div>
+                    
+                    <div class="flex items-center gap-2">
+                        <div class="bg-indigo-600 text-white p-2 rounded-xl shadow-md">
+                            <i class="fa-solid fa-graduation-cap text-base sm:text-lg"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">پلنر تحصیلی AVM</h1>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 hidden sm:block">نسخه هوشمند و ماندگار موبایل</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Left Action Buttons -->
+                <div class="flex items-center gap-1.5 sm:gap-2">
+                    <button onclick="openManageSubjectsModal()" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 font-medium px-2.5 sm:px-3 py-1.5 rounded-xl transition-all text-xs flex items-center gap-1">
+                        <i class="fa-solid fa-book-bookmark text-indigo-500"></i>
+                        <span class="hidden sm:inline">مدیریت</span> دروس
+                    </button>
+                    <button onclick="quickAddSession()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-3 py-1.5 rounded-xl shadow-md transition-all text-xs flex items-center gap-1">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>ثبت جدید</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-5">
+
+        <!-- KPI STATS CARDS -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-2.5 sm:gap-3">
+            <div class="bg-white dark:bg-darkcard p-3.5 rounded-2xl border border-slate-200 dark:border-darkborder shadow-sm">
+                <div class="flex justify-between items-center text-slate-400 text-xs mb-1">
+                    <span>کل برنامه‌ها</span>
+                    <i class="fa-solid fa-list-check text-indigo-500"></i>
+                </div>
+                <div id="stat-total-count" class="text-xl font-black text-slate-800 dark:text-white">۰</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">جلسه ثبت‌شده</div>
+            </div>
+
+            <div class="bg-white dark:bg-darkcard p-3.5 rounded-2xl border border-slate-200 dark:border-darkborder shadow-sm">
+                <div class="flex justify-between items-center text-slate-400 text-xs mb-1">
+                    <span>مطالعه مفید</span>
+                    <i class="fa-solid fa-clock text-emerald-500"></i>
+                </div>
+                <div id="stat-completed-hours" class="text-xl font-black text-emerald-600 dark:text-emerald-400">۰ ساعت</div>
+                <div id="stat-completed-percent" class="text-[10px] text-emerald-500 mt-0.5">۰٪ پیشرفت</div>
+            </div>
+
+            <div class="bg-white dark:bg-darkcard p-3.5 rounded-2xl border border-slate-200 dark:border-darkborder shadow-sm">
+                <div class="flex justify-between items-center text-slate-400 text-xs mb-1">
+                    <span>استراحت</span>
+                    <i class="fa-solid fa-mug-hot text-amber-500"></i>
+                </div>
+                <div id="stat-break-hours" class="text-xl font-black text-amber-600 dark:text-amber-400">۰ دقیقه</div>
+                <div class="text-[10px] text-amber-500 mt-0.5">زمان بازیابی</div>
+            </div>
+
+            <div class="bg-white dark:bg-darkcard p-3.5 rounded-2xl border border-slate-200 dark:border-darkborder shadow-sm">
+                <div class="flex justify-between items-center text-slate-400 text-xs mb-1">
+                    <span>برنامه امروز</span>
+                    <i class="fa-solid fa-calendar-day text-sky-500"></i>
+                </div>
+                <div id="stat-today-count" class="text-xl font-black text-sky-600 dark:text-sky-400">۰</div>
+                <div class="text-[10px] text-sky-500 mt-0.5">جلسه امروز</div>
+            </div>
+
+            <div class="bg-white dark:bg-darkcard p-3.5 rounded-2xl border border-slate-200 dark:border-darkborder shadow-sm col-span-2 md:col-span-1">
+                <div class="flex justify-between items-center text-slate-400 text-xs mb-1">
+                    <span>باقی‌مانده</span>
+                    <i class="fa-solid fa-circle-exclamation text-rose-500"></i>
+                </div>
+                <div id="stat-pending-count" class="text-xl font-black text-rose-600 dark:text-rose-400">۰</div>
+                <div class="text-[10px] text-rose-500 mt-0.5">خوانده نشده</div>
+            </div>
+        </div>
+
+        <!-- MAIN TABLE -->
+        <div class="bg-white dark:bg-darkcard rounded-2xl border border-slate-200 dark:border-darkborder shadow-sm overflow-hidden">
+            <div class="p-3.5 border-b border-slate-200 dark:border-darkborder bg-slate-50/80 dark:bg-slate-800/80 flex flex-wrap justify-between items-center gap-2">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-table-list text-indigo-600 dark:text-indigo-400"></i>
+                    <h2 class="font-bold text-slate-800 dark:text-white text-xs sm:text-sm">جدول اصلی برنامه مطالعه و زمان‌بندی</h2>
+                    <span id="session-count-badge" class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-xs px-2 py-0.5 rounded-full font-bold">۰</span>
+                </div>
+
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <select id="table-subject-filter" onchange="renderTable()" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white rounded-xl px-2.5 py-1 text-xs focus:ring-2 focus:ring-indigo-500">
+                        <!-- Populated via JS -->
+                    </select>
+                    <input type="text" id="table-search" oninput="renderTable()" placeholder="جستجو..." class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-white rounded-xl px-2.5 py-1 text-xs focus:ring-2 focus:ring-indigo-500 flex-1 sm:w-auto">
+                    
+                    <button onclick="exportToCSV()" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-2.5 py-1 rounded-xl border border-slate-300 dark:border-slate-700 text-xs flex items-center gap-1">
+                        <i class="fa-solid fa-file-excel text-emerald-600"></i> خروجی
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto max-h-[460px]">
+                <table class="w-full text-right text-xs border-collapse">
+                    <thead class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold sticky top-0 z-10 border-b border-slate-200 dark:border-darkborder">
+                        <tr>
+                            <th class="p-2.5 w-8 text-center">انجام</th>
+                            <th class="p-2.5 min-w-[130px]">درس / فعالیت</th>
+                            <th class="p-2.5 min-w-[110px] text-center">تاریخ</th>
+                            <th class="p-2.5 min-w-[180px] text-center">زمان مطالعه (از / تا)</th>
+                            <th class="p-2.5 min-w-[110px] text-center">وضعیت</th>
+                            <th class="p-2.5 min-w-[180px]">موضوع / فصل</th>
+                            <th class="p-2.5 w-12 text-center">حذف</th>
+                        </tr>
+                    </thead>
+                    <tbody id="planner-table-body" class="divide-y divide-slate-200 dark:divide-slate-700/60 bg-white dark:bg-darkcard">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="p-2.5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-darkborder text-[11px] text-slate-500 dark:text-slate-400 flex justify-between items-center">
+                <span>تعداد جلسات: <strong id="table-footer-count">۰</strong></span>
+                <span id="current-date-text"></span>
+            </div>
+        </div>
+
+        <!-- UNREAD & PENDING TASKS SECTION -->
+        <div class="bg-white dark:bg-darkcard p-4 rounded-2xl border border-slate-200 dark:border-darkborder shadow-sm space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-2">
+                <h2 class="font-bold text-slate-800 dark:text-white text-xs sm:text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-rose-500"></i>
+                    لیست دروس و برنامه‌های باقی‌مانده و مطالعه‌نشده
+                </h2>
+                <span id="pending-badge" class="bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-300 text-xs px-2 py-0.5 rounded-full font-bold">۰ جلسه</span>
+            </div>
+            <div id="pending-tasks-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                <!-- JS populated -->
+            </div>
+        </div>
+
+        <!-- INTERACTIVE WEEKLY CALENDAR -->
+        <div class="bg-white dark:bg-darkcard p-4 rounded-2xl border border-slate-200 dark:border-darkborder shadow-sm space-y-3">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-2.5">
+                <div>
+                    <h2 class="font-bold text-slate-800 dark:text-white text-xs sm:text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-days text-indigo-600 dark:text-indigo-400"></i>
+                        تقویم و برنامه‌ریزی هفته پیش‌رو
+                    </h2>
+                </div>
+                
+                <div class="flex items-center gap-2 text-xs w-full sm:w-auto justify-between sm:justify-end">
+                    <button onclick="changeWeek(-1)" class="p-1 px-2.5 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all text-xs">
+                        <i class="fa-solid fa-chevron-right ml-1"></i> قبلی
+                    </button>
+                    <span id="calendar-week-text" class="font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">--</span>
+                    <button onclick="changeWeek(1)" class="p-1 px-2.5 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all text-xs">
+                        بعدی <i class="fa-solid fa-chevron-left mr-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 7-Day Grid -->
+            <div id="weekly-calendar-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-7 gap-2.5">
+                <!-- JS Populated -->
+            </div>
+        </div>
+
+        <!-- CHARTS SECTION -->
+        <div class="space-y-5">
+            <!-- Line Chart: Daily Trend -->
+            <div class="bg-white dark:bg-darkcard p-4 rounded-2xl border border-slate-200 dark:border-darkborder shadow-sm">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-indigo-500"></i> روند مقایسه‌ای ساعات مطالعه هفته
+                    </h3>
+                </div>
+                <div class="relative w-full h-56">
+                    <canvas id="chartDailyTrend"></canvas>
+                </div>
+            </div>
+
+            <!-- Bottom Charts -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="bg-white dark:bg-darkcard p-4 rounded-2xl border border-slate-200 dark:border-darkborder shadow-sm">
+                    <h3 class="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-column text-indigo-500"></i> مجموع ساعات به تفکیک درس
+                    </h3>
+                    <div class="relative w-full h-48">
+                        <canvas id="chartSubjects"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-darkcard p-4 rounded-2xl border border-slate-200 dark:border-darkborder shadow-sm">
+                    <h3 class="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-indigo-500"></i> وضعیت تکمیل و معوقه
+                    </h3>
+                    <div class="relative w-full h-48 flex justify-center items-center">
+                        <canvas id="chartCompletion"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MANAGE SUBJECTS MODAL -->
+    <div id="manage-subjects-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex justify-center items-center p-4">
+        <div class="bg-white dark:bg-darkcard rounded-2xl shadow-xl border border-slate-200 dark:border-darkborder w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div class="bg-slate-50 dark:bg-slate-800 px-5 py-3.5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 dark:text-white text-xs sm:text-sm">مدیریت لیست دروس</h3>
+                <button onclick="closeManageSubjectsModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-base">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">افزودن درس جدید</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="new-subject-input" placeholder="نام درس جدید..." class="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-2 text-xs text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <button onclick="addNewSubject()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-xl text-xs font-medium">افزودن</button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">دروس موجود (امکان حذف)</label>
+                    <div id="subjects-manage-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                        <!-- JS Populated -->
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-2 border-t border-slate-100 dark:border-slate-700">
+                    <button type="button" onclick="closeManageSubjectsModal()" class="px-4 py-2 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200">بستن</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CALENDAR EVENT QUICK EDIT MODAL -->
+    <div id="calendar-edit-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex justify-center items-center p-4">
+        <div class="bg-white dark:bg-darkcard rounded-2xl shadow-xl border border-slate-200 dark:border-darkborder w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div class="bg-slate-50 dark:bg-slate-800 px-5 py-3.5 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 dark:text-white text-xs sm:text-sm">ویرایش سریع برنامه مطالعه</h3>
+                <button onclick="closeCalendarEditModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-base">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="p-5 space-y-3">
+                <input type="hidden" id="modal-session-id">
+                
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">نام درس</label>
+                    <select id="modal-subject-select" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-2 text-xs text-slate-800 dark:text-white focus:ring-2 focus:ring-indigo-500">
+                        <!-- Populated -->
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">از ساعت</label>
+                        <input type="time" id="modal-start-time" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-2 text-xs text-slate-800 dark:text-white font-mono text-center">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">تا ساعت</label>
+                        <input type="time" id="modal-end-time" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-2 text-xs text-slate-800 dark:text-white font-mono text-center">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">وضعیت</label>
+                    <select id="modal-status-select" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-2 text-xs text-slate-800 dark:text-white">
+                        <option value="برنامه‌ریزی شده">برنامه‌ریزی شده</option>
+                        <option value="خوانده شده">خوانده شده</option>
+                        <option value="در حال مطالعه">در حال مطالعه</option>
+                        <option value="خوانده نشده">خوانده نشده</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">موضوع / توضیحات</label>
+                    <input type="text" id="modal-topic-input" placeholder="عنوان یا فصل..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-2 text-xs text-slate-800 dark:text-white">
+                </div>
+
+                <div class="flex justify-between items-center pt-2 border-t border-slate-100 dark:border-slate-700">
+                    <button type="button" onclick="deleteFromModal()" class="text-rose-600 dark:text-rose-400 text-xs font-medium hover:underline">حذف جلسه</button>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="closeCalendarEditModal()" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">انصراف</button>
+                        <button type="button" onclick="saveModalEdit()" class="px-4 py-1.5 rounded-xl text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white">ذخیره</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // PERSISTENCE LOCALSTORAGE KEYS
+        const LOCAL_STORAGE_SESSIONS_KEY = 'avm_planner_sessions_data_v2';
+        const LOCAL_STORAGE_SUBJECTS_KEY = 'avm_planner_subjects_data_v2';
+
+        function toFaDigits(str) {
+            if (str === null || str === undefined) return '';
+            return str.toString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+        }
+
+        function gregorianToJalali(gy, gm, gd) {
+            const g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+            let jy = (gy <= 1600) ? 0 : 979;
+            gy -= (gy <= 1600) ? 621 : 1600;
+            let gy2 = (gm > 2) ? (gy + 1) : gy;
+            let days = (365 * gy) + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100) + Math.floor((gy2 + 399) / 400) - 80 + gd + g_d_m[gm - 1];
+            jy += 33 * Math.floor(days / 12053);
+            days %= 12053;
+            jy += 4 * Math.floor(days / 1461);
+            days %= 1461;
+            jy += Math.floor((days - 1) / 365);
+            if (days > 0) days = (days - 1) % 365;
+            let jm = (days < 186) ? 1 + Math.floor(days / 31) : 7 + Math.floor((days - 186) / 30);
+            let jd = 1 + ((days < 186) ? (days % 31) : ((days - 186) % 30));
+            return [jy, jm, jd];
+        }
+
+        function formatFaDate(dateStr) {
+            if (!dateStr) return '-';
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return dateStr;
+            const gy = parseInt(parts[0]);
+            const gm = parseInt(parts[1]);
+            const gd = parseInt(parts[2]);
+            const [jy, jm, jd] = gregorianToJalali(gy, gm, gd);
+            const m = jm < 10 ? '0' + jm : jm;
+            const d = jd < 10 ? '0' + jd : jd;
+            return toFaDigits(`${jy}/${m}/${d}`);
+        }
+
+        // Default Subjects Array
+        let defaultSubjects = ['تغذیه', 'فیزیولوژی', 'بیوشیمی', 'زبان', 'استراحت / تفریح'];
+        let subjects = JSON.parse(localStorage.getItem(LOCAL_STORAGE_SUBJECTS_KEY)) || defaultSubjects;
+
+        const SUBJECT_COLORS = {
+            'تغذیه': { bg: 'bg-emerald-100 dark:bg-emerald-900/40', text: 'text-emerald-800 dark:text-emerald-300', hex: '#10b981' },
+            'فیزیولوژی': { bg: 'bg-sky-100 dark:bg-sky-900/40', text: 'text-sky-800 dark:text-sky-300', hex: '#0284c7' },
+            'بیوشیمی': { bg: 'bg-purple-100 dark:bg-purple-900/40', text: 'text-purple-800 dark:text-purple-300', hex: '#8b5cf6' },
+            'زبان': { bg: 'bg-amber-100 dark:bg-amber-900/40', text: 'text-amber-800 dark:text-amber-300', hex: '#f59e0b' },
+            'استراحت / تفریح': { bg: 'bg-rose-100 dark:bg-rose-900/40', text: 'text-rose-800 dark:text-rose-300', hex: '#f43f5e' }
+        };
+
+        const STATUSES = ['برنامه‌ریزی شده', 'خوانده شده', 'در حال مطالعه', 'خوانده نشده'];
+        let todayGregorian = new Date().toISOString().split('T')[0];
+
+        // Sample initial sessions if empty
+        let initialSessions = [
+            { id: '1', subject: 'تغذیه', date: todayGregorian, startTime: '08:00', endTime: '10:00', status: 'خوانده شده', completed: true, topic: 'فصل ۱ - ویتامین‌های محلول در چربی' },
+            { id: '2', subject: 'استراحت / تفریح', date: todayGregorian, startTime: '10:00', endTime: '10:30', status: 'خوانده شده', completed: true, topic: 'استراحت و میان‌وعده' },
+            { id: '3', subject: 'فیزیولوژی', date: todayGregorian, startTime: '10:30', endTime: '12:30', status: 'خوانده نشده', completed: false, topic: 'فیزیولوژی اعصاب' },
+            { id: '4', subject: 'بیوشیمی', date: todayGregorian, startTime: '16:00', endTime: '18:00', status: 'برنامه‌ریزی شده', completed: false, topic: 'تست‌های چرخه کربس' }
+        ];
+
+        let sessions = JSON.parse(localStorage.getItem(LOCAL_STORAGE_SESSIONS_KEY)) || initialSessions;
+
+        let currentWeekOffset = 0;
+        let chartSubjectInstance = null;
+        let chartCompletionInstance = null;
+        let chartDailyTrendInstance = null;
+
+        // Save State to LocalStorage (Persistent)
+        function saveState() {
+            localStorage.setItem(LOCAL_STORAGE_SESSIONS_KEY, JSON.stringify(sessions));
+            localStorage.setItem(LOCAL_STORAGE_SUBJECTS_KEY, JSON.stringify(subjects));
+        }
+
+        window.onload = function() {
+            displayTodayDate();
+            populateSubjectFilterDropdown();
+            renderTable();
+            renderPendingTasks();
+            renderCalendar();
+            updateMetricsAndCharts();
+        };
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            const text = document.getElementById('theme-text');
+
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                html.classList.add('light');
+                icon.className = 'fa-solid fa-moon text-indigo-600 text-sm';
+                text.innerText = 'حالت شب';
+            } else {
+                html.classList.remove('light');
+                html.classList.add('dark');
+                icon.className = 'fa-solid fa-sun text-amber-400 text-sm';
+                text.innerText = 'حالت روز';
+            }
+            updateMetricsAndCharts();
+        }
+
+        function displayTodayDate() {
+            const now = new Date();
+            const gy = now.getFullYear();
+            const gm = now.getMonth() + 1;
+            const gd = now.getDate();
+            const [jy, jm, jd] = gregorianToJalali(gy, gm, gd);
+            
+            const days = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'شنبه'];
+            const dayName = days[now.getDay()];
+            const monthNames = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
+            
+            const formattedText = `امروز: ${dayName} ${toFaDigits(jd)} ${monthNames[jm - 1]} ${toFaDigits(jy)}`;
+            document.getElementById('current-date-text').innerText = formattedText;
+        }
+
+        function getSubjectStyle(subName) {
+            if (SUBJECT_COLORS[subName]) return SUBJECT_COLORS[subName];
+            return { bg: 'bg-indigo-100 dark:bg-indigo-900/40', text: 'text-indigo-800 dark:text-indigo-300', hex: '#6366f1' };
+        }
+
+        function populateSubjectFilterDropdown() {
+            const select = document.getElementById('table-subject-filter');
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">همه درس‌ها و استراحت</option>';
+            subjects.forEach(sub => {
+                select.innerHTML += `<option value="${sub}" ${currentVal === sub ? 'selected' : ''}>${sub}</option>`;
+            });
+        }
+
+        function openManageSubjectsModal() {
+            renderSubjectsManageList();
+            document.getElementById('manage-subjects-modal').classList.remove('hidden');
+        }
+
+        function closeManageSubjectsModal() {
+            document.getElementById('manage-subjects-modal').classList.add('hidden');
+        }
+
+        function renderSubjectsManageList() {
+            const container = document.getElementById('subjects-manage-list');
+            container.innerHTML = '';
+            subjects.forEach(sub => {
+                const style = getSubjectStyle(sub);
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center bg-slate-50 dark:bg-slate-800/80 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs';
+                div.innerHTML = `
+                    <span class="font-bold ${style.text}">${sub}</span>
+                    <button type="button" onclick="deleteSubject(event, '${sub}')" class="bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100 p-1.5 rounded-lg transition-all cursor-pointer" title="حذف درس">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function addNewSubject() {
+            const input = document.getElementById('new-subject-input');
+            const name = input.value.trim();
+            if (name && !subjects.includes(name)) {
+                subjects.push(name);
+                const colorsHex = ['#ec4899', '#14b8a6', '#f97316', '#06b6d4', '#84cc16'];
+                const randomHex = colorsHex[Math.floor(Math.random() * colorsHex.length)];
+                SUBJECT_COLORS[name] = { bg: 'bg-slate-100 dark:bg-slate-800', text: 'text-slate-800 dark:text-slate-200', hex: randomHex };
+
+                input.value = '';
+                saveState();
+                populateSubjectFilterDropdown();
+                renderSubjectsManageList();
+                renderTable();
+                updateMetricsAndCharts();
+            }
+        }
+
+        function deleteSubject(event, subName) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            if (subjects.length <= 1) {
+                alert('حداقل یک درس باید در سیستم ثبت باقی بماند.');
+                return;
+            }
+            if (confirm(`آیا از حذف درس "${subName}" اطمینان دارید؟ تمامی برنامه‌های مرتبط پاک خواهند شد.`)) {
+                subjects = subjects.filter(s => s !== subName);
+                sessions = sessions.filter(s => s.subject !== subName);
+                delete SUBJECT_COLORS[subName];
+
+                saveState();
+                populateSubjectFilterDropdown();
+                renderSubjectsManageList();
+                renderTable();
+                renderPendingTasks();
+                renderCalendar();
+                updateMetricsAndCharts();
+            }
+        }
+
+        function quickAddSession(customDate = null, customSubject = null) {
+            const today = customDate || new Date().toISOString().split('T')[0];
+            const defaultSub = customSubject || subjects[0] || 'درس جدید';
+            const newSession = {
+                id: Date.now().toString(),
+                subject: defaultSub,
+                date: today,
+                startTime: '09:00',
+                endTime: '11:00',
+                status: 'برنامه‌ریزی شده',
+                completed: false,
+                topic: 'مبحث مطالعه'
+            };
+            sessions.unshift(newSession);
+            saveState();
+            renderTable();
+            renderPendingTasks();
+            renderCalendar();
+            updateMetricsAndCharts();
+        }
+
+        function deleteSession(id) {
+            sessions = sessions.filter(s => s.id !== id);
+            saveState();
+            renderTable();
+            renderPendingTasks();
+            renderCalendar();
+            updateMetricsAndCharts();
+        }
+
+        function cycleStatus(id) {
+            const session = sessions.find(s => s.id === id);
+            if (!session) return;
+
+            const currentIndex = STATUSES.indexOf(session.status);
+            const nextIndex = (currentIndex + 1) % STATUSES.length;
+            session.status = STATUSES[nextIndex];
+            session.completed = (session.status === 'خوانده شده');
+
+            saveState();
+            renderTable();
+            renderPendingTasks();
+            renderCalendar();
+            updateMetricsAndCharts();
+        }
+
+        function toggleCheck(id) {
+            const session = sessions.find(s => s.id === id);
+            if (!session) return;
+            session.completed = !session.completed;
+            session.status = session.completed ? 'خوانده شده' : 'برنامه‌ریزی شده';
+
+            saveState();
+            renderTable();
+            renderPendingTasks();
+            renderCalendar();
+            updateMetricsAndCharts();
+        }
+
+        function updateField(id, field, value) {
+            const session = sessions.find(s => s.id === id);
+            if (session) {
+                session[field] = value;
+                if (field === 'status') {
+                    session.completed = (value === 'خوانده شده');
+                }
+                saveState();
+                renderTable();
+                renderPendingTasks();
+                renderCalendar();
+                updateMetricsAndCharts();
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('planner-table-body');
+            const subjectFilter = document.getElementById('table-subject-filter').value;
+            const searchQuery = document.getElementById('table-search').value.toLowerCase();
+
+            tbody.innerHTML = '';
+
+            let filtered = sessions.filter(s => {
+                const matchSub = !subjectFilter || s.subject === subjectFilter;
+                const matchSearch = s.subject.toLowerCase().includes(searchQuery) || 
+                                    (s.topic && s.topic.toLowerCase().includes(searchQuery));
+                return matchSub && matchSearch;
+            });
+
+            // SORT BY DATE & START TIME ASCENDING
+            filtered.sort((a, b) => {
+                const dateCompare = (a.date || '').localeCompare(b.date || '');
+                if (dateCompare !== 0) return dateCompare;
+                return (a.startTime || '').localeCompare(b.startTime || '');
+            });
+
+            document.getElementById('session-count-badge').innerText = toFaDigits(filtered.length);
+            document.getElementById('table-footer-count').innerText = toFaDigits(filtered.length);
+
+            filtered.forEach(s => {
+                const style = getSubjectStyle(s.subject);
+
+                let statusBadge = 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300';
+                if (s.status === 'خوانده شده') statusBadge = 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 font-bold';
+                if (s.status === 'در حال مطالعه') statusBadge = 'bg-sky-100 dark:bg-sky-900/50 text-sky-800 dark:text-sky-300';
+                if (s.status === 'برنامه‌ریزی شده') statusBadge = 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-300';
+                if (s.status === 'خوانده نشده') statusBadge = 'bg-rose-100 dark:bg-rose-900/50 text-rose-800 dark:text-rose-300';
+
+                const tr = document.createElement('tr');
+                tr.className = `hover:bg-slate-50/80 dark:hover:bg-slate-700/50 transition-colors ${s.completed ? 'bg-emerald-50/20 dark:bg-emerald-900/10' : ''}`;
+
+                tr.innerHTML = `
+                    <td class="p-2.5 text-center">
+                        <input type="checkbox" ${s.completed ? 'checked' : ''} onchange="toggleCheck('${s.id}')" class="w-4 h-4 text-indigo-600 rounded border-slate-300 cursor-pointer">
+                    </td>
+
+                    <td class="p-2.5">
+                        <select onchange="updateField('${s.id}', 'subject', this.value)" class="bg-transparent font-bold ${style.bg} ${style.text} px-2 py-1 rounded-lg border border-transparent hover:border-slate-300 dark:hover:border-slate-600 focus:bg-white dark:focus:bg-slate-800 focus:text-slate-800 dark:focus:text-white cursor-pointer text-xs">
+                            ${subjects.map(sub => `<option value="${sub}" ${sub === s.subject ? 'selected' : ''}>${sub}</option>`).join('')}
+                        </select>
+                    </td>
+
+                    <td class="p-2.5 text-center">
+                        <span class="text-xs text-slate-800 dark:text-slate-200 font-bold font-mono">${formatFaDate(s.date)}</span>
+                    </td>
+
+                    <td class="p-2.5 text-center">
+                        <div class="flex items-center justify-center gap-1 bg-slate-50 dark:bg-slate-800/80 px-2 py-1 rounded-xl border border-slate-200 dark:border-slate-700 w-fit mx-auto shadow-inner">
+                            <input type="time" value="${s.startTime}" onchange="updateField('${s.id}', 'startTime', this.value)" class="bg-transparent text-indigo-700 dark:text-indigo-300 font-black text-xs text-center cursor-pointer focus:outline-none">
+                            <span class="text-slate-400 text-xs font-bold">تا</span>
+                            <input type="time" value="${s.endTime}" onchange="updateField('${s.id}', 'endTime', this.value)" class="bg-transparent text-indigo-700 dark:text-indigo-300 font-black text-xs text-center cursor-pointer focus:outline-none">
+                        </div>
+                    </td>
+
+                    <td class="p-2.5 text-center">
+                        <button onclick="cycleStatus('${s.id}')" class="${statusBadge} px-2 py-0.5 rounded-xl text-[10px] transition-all hover:scale-105 active:scale-95 shadow-sm">
+                            ${s.status} <i class="fa-solid fa-arrows-rotate mr-1 text-[8px] opacity-70"></i>
+                        </button>
+                    </td>
+
+                    <td class="p-2.5">
+                        <input type="text" value="${s.topic || ''}" onchange="updateField('${s.id}', 'topic', this.value)" placeholder="موضوع..." class="inline-input w-full text-xs text-slate-700 dark:text-slate-300">
+                    </td>
+
+                    <td class="p-2.5 text-center">
+                        <button onclick="deleteSession('${s.id}')" class="text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-all" title="حذف">
+                            <i class="fa-solid fa-trash-can text-xs"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderPendingTasks() {
+            const container = document.getElementById('pending-tasks-list');
+            container.innerHTML = '';
+
+            const pending = sessions.filter(s => !s.completed && s.subject !== 'استراحت / تفریح');
+            document.getElementById('pending-badge').innerText = `${toFaDigits(pending.length)} جلسه`;
+
+            if (pending.length === 0) {
+                container.innerHTML = '<div class="col-span-full text-center py-4 text-xs text-slate-400 font-medium">تمام دروس با موفقیت خوانده شده‌اند! 🎯</div>';
+                return;
+            }
+
+            pending.forEach(s => {
+                const style = getSubjectStyle(s.subject);
+                const div = document.createElement('div');
+                div.className = 'bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex justify-between items-center text-xs shadow-sm';
+                div.innerHTML = `
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="${style.bg} ${style.text} font-bold px-2 py-0.5 rounded text-[10px]">${s.subject}</span>
+                            <span class="text-slate-500 dark:text-slate-400 text-[10px] font-bold">${formatFaDate(s.date)}</span>
+                        </div>
+                        <div class="font-semibold text-slate-700 dark:text-slate-200">${s.topic || 'بدون عنوان'}</div>
+                        <div class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold">${toFaDigits(s.startTime)} تا ${toFaDigits(s.endTime)}</div>
+                    </div>
+                    <button onclick="toggleCheck('${s.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all shadow-sm flex items-center gap-1">
+                        <i class="fa-solid fa-check"></i> خوانده شد
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // FULLY INTERACTIVE WEEKLY CALENDAR (CLICK EVENT CARDS TO EDIT)
+        function renderCalendar() {
+            const grid = document.getElementById('weekly-calendar-grid');
+            grid.innerHTML = '';
+
+            const today = new Date();
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() + (currentWeekOffset * 7));
+
+            const weekEnd = new Date(startOfWeek);
+            weekEnd.setDate(startOfWeek.getDate() + 6);
+
+            document.getElementById('calendar-week-text').innerText = 
+                `${formatFaDate(startOfWeek.toISOString().split('T')[0])} الی ${formatFaDate(weekEnd.toISOString().split('T')[0])}`;
+
+            const daysFa = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'شنبه'];
+
+            for (let i = 0; i < 7; i++) {
+                const dayDate = new Date(startOfWeek);
+                dayDate.setDate(startOfWeek.getDate() + i);
+                const dateStr = dayDate.toISOString().split('T')[0];
+
+                const daySessions = sessions.filter(s => s.date === dateStr);
+                daySessions.sort((a,b) => a.startTime.localeCompare(b.startTime));
+
+                const isToday = dateStr === new Date().toISOString().split('T')[0];
+
+                const dayCard = document.createElement('div');
+                dayCard.className = `bg-slate-50 dark:bg-slate-800/40 p-2.5 rounded-2xl border ${isToday ? 'border-indigo-500 bg-indigo-50/20 dark:bg-indigo-900/20 shadow-sm' : 'border-slate-200 dark:border-slate-700'} min-h-[200px] flex flex-col justify-between`;
+
+                let cardsHtml = '';
+                daySessions.forEach(s => {
+                    const style = getSubjectStyle(s.subject);
+                    cardsHtml += `
+                        <div onclick="openCalendarEditModal('${s.id}')" class="bg-white dark:bg-darkcard p-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm text-xs space-y-1 cursor-pointer hover:border-indigo-400 active:scale-98 transition-all ${s.completed ? 'opacity-60' : ''}">
+                            <div class="flex justify-between items-center font-bold">
+                                <span class="${style.bg} ${style.text} px-1.5 py-0.5 rounded text-[10px]">${s.subject}</span>
+                                <span class="text-[10px] text-indigo-600 dark:text-indigo-400 font-mono">${toFaDigits(s.startTime)}</span>
+                            </div>
+                            <div class="text-[11px] text-slate-600 dark:text-slate-300 truncate">${s.topic || 'بدون موضوع'}</div>
+                        </div>
+                    `;
+                });
+
+                dayCard.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-700 mb-2">
+                            <div>
+                                <span class="block text-xs font-bold ${isToday ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-700 dark:text-slate-300'}">${daysFa[dayDate.getDay()]}</span>
+                                <span class="text-[10px] text-slate-400 font-bold">${formatFaDate(dateStr)}</span>
+                            </div>
+                            <button onclick="quickAddSession('${dateStr}')" class="text-[10px] bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-indigo-600 hover:text-white px-2 py-0.5 rounded-lg transition-all font-medium">
+                                + افزودن
+                            </button>
+                        </div>
+
+                        <div class="space-y-1.5 overflow-y-auto max-h-[150px]">
+                            ${cardsHtml || '<div class="text-[10px] text-slate-400 text-center py-6">برنامه‌ای نیست</div>'}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(dayCard);
+            }
+        }
+
+        // CALENDAR MODAL EDIT FUNCTIONS
+        function openCalendarEditModal(sessionId) {
+            const session = sessions.find(s => s.id === sessionId);
+            if (!session) return;
+
+            document.getElementById('modal-session-id').value = session.id;
+            
+            const select = document.getElementById('modal-subject-select');
+            select.innerHTML = '';
+            subjects.forEach(sub => {
+                select.innerHTML += `<option value="${sub}" ${sub === session.subject ? 'selected' : ''}>${sub}</option>`;
+            });
+
+            document.getElementById('modal-start-time').value = session.startTime || '09:00';
+            document.getElementById('modal-end-time').value = session.endTime || '10:00';
+            document.getElementById('modal-status-select').value = session.status || 'برنامه‌ریزی شده';
+            document.getElementById('modal-topic-input').value = session.topic || '';
+
+            document.getElementById('calendar-edit-modal').classList.remove('hidden');
+        }
+
+        function closeCalendarEditModal() {
+            document.getElementById('calendar-edit-modal').classList.add('hidden');
+        }
+
+        function saveModalEdit() {
+            const id = document.getElementById('modal-session-id').value;
+            const session = sessions.find(s => s.id === id);
+            if (session) {
+                session.subject = document.getElementById('modal-subject-select').value;
+                session.startTime = document.getElementById('modal-start-time').value;
+                session.endTime = document.getElementById('modal-end-time').value;
+                session.status = document.getElementById('modal-status-select').value;
+                session.completed = (session.status === 'خوانده شده');
+                session.topic = document.getElementById('modal-topic-input').value;
+
+                saveState();
+                closeCalendarEditModal();
+                renderTable();
+                renderPendingTasks();
+                renderCalendar();
+                updateMetricsAndCharts();
+            }
+        }
+
+        function deleteFromModal() {
+            const id = document.getElementById('modal-session-id').value;
+            if (confirm('آیا از حذف این جلسه از تقویم مطمئن هستید؟')) {
+                deleteSession(id);
+                closeCalendarEditModal();
+            }
+        }
+
+        function changeWeek(offset) {
+            currentWeekOffset += offset;
+            renderCalendar();
+        }
+
+        function updateMetricsAndCharts() {
+            const total = sessions.length;
+            const completedSessions = sessions.filter(s => s.completed && s.subject !== 'استراحت / تفریح');
+            const breakSessions = sessions.filter(s => s.completed && s.subject === 'استراحت / تفریح');
+
+            let totalStudyHours = 0;
+            completedSessions.forEach(s => {
+                if (s.startTime && s.endTime) {
+                    const [h1, m1] = s.startTime.split(':').map(Number);
+                    const [h2, m2] = s.endTime.split(':').map(Number);
+                    const diff = (h2 * 60 + m2) - (h1 * 60 + m1);
+                    if (diff > 0) totalStudyHours += diff / 60;
+                }
+            });
+
+            let totalBreakMinutes = 0;
+            breakSessions.forEach(s => {
+                if (s.startTime && s.endTime) {
+                    const [h1, m1] = s.startTime.split(':').map(Number);
+                    const [h2, m2] = s.endTime.split(':').map(Number);
+                    const diff = (h2 * 60 + m2) - (h1 * 60 + m1);
+                    if (diff > 0) totalBreakMinutes += diff;
+                }
+            });
+
+            const todayStr = new Date().toISOString().split('T')[0];
+            const todayCount = sessions.filter(s => s.date === todayStr).length;
+            const pendingCount = sessions.filter(s => !s.completed && s.subject !== 'استراحت / تفریح').length;
+
+            const studySessionsCount = sessions.filter(s => s.subject !== 'استراحت / تفریح').length;
+            const percent = studySessionsCount > 0 ? Math.round((completedSessions.length / studySessionsCount) * 100) : 0;
+
+            document.getElementById('stat-total-count').innerText = toFaDigits(total);
+            document.getElementById('stat-completed-hours').innerText = `${toFaDigits(totalStudyHours.toFixed(1))} ساعت`;
+            document.getElementById('stat-break-hours').innerText = `${toFaDigits(totalBreakMinutes)} دقیقه`;
+            document.getElementById('stat-completed-percent').innerText = `${toFaDigits(percent)}٪ پیشرفت`;
+            document.getElementById('stat-today-count').innerText = toFaDigits(todayCount);
+            document.getElementById('stat-pending-count').innerText = toFaDigits(pendingCount);
+
+            const isDark = document.documentElement.classList.contains('dark');
+            const textColor = isDark ? '#cbd5e1' : '#475569';
+
+            // Chart 1: Daily Study Trend
+            const last7DaysMap = {};
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const dStr = d.toISOString().split('T')[0];
+                last7DaysMap[dStr] = 0;
+            }
+
+            sessions.filter(s => s.completed && s.subject !== 'استراحت / تفریح').forEach(s => {
+                if (last7DaysMap[s.date] !== undefined) {
+                    const [h1, m1] = s.startTime.split(':').map(Number);
+                    const [h2, m2] = s.endTime.split(':').map(Number);
+                    const diff = (h2 * 60 + m2) - (h1 * 60 + m1);
+                    if (diff > 0) last7DaysMap[s.date] += diff / 60;
+                }
+            });
+
+            const trendLabels = Object.keys(last7DaysMap).map(d => formatFaDate(d));
+            const trendData = Object.values(last7DaysMap);
+
+            if (chartDailyTrendInstance) chartDailyTrendInstance.destroy();
+            const ctxTrend = document.getElementById('chartDailyTrend').getContext('2d');
+            chartDailyTrendInstance = new Chart(ctxTrend, {
+                type: 'line',
+                data: {
+                    labels: trendLabels,
+                    datasets: [{
+                        label: 'ساعات مطالعه',
+                        data: trendData,
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.15)',
+                        fill: true,
+                        tension: 0.35,
+                        pointBackgroundColor: '#6366f1',
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: textColor, callback: v => toFaDigits(v) } },
+                        x: { ticks: { color: textColor } }
+                    }
+                }
+            });
+
+            // Chart 2: Hours by Subject
+            const subjectHoursMap = {};
+            subjects.filter(s => s !== 'استراحت / تفریح').forEach(sub => { subjectHoursMap[sub] = 0; });
+
+            sessions.filter(s => s.completed && s.subject !== 'استراحت / تفریح').forEach(s => {
+                if (s.startTime && s.endTime) {
+                    const [h1, m1] = s.startTime.split(':').map(Number);
+                    const [h2, m2] = s.endTime.split(':').map(Number);
+                    const diff = (h2 * 60 + m2) - (h1 * 60 + m1);
+                    if (diff > 0) {
+                        subjectHoursMap[s.subject] = (subjectHoursMap[s.subject] || 0) + (diff / 60);
+                    }
+                }
+            });
+
+            const labels = Object.keys(subjectHoursMap);
+            const dataHours = Object.values(subjectHoursMap);
+            const bgColors = labels.map(sub => getSubjectStyle(sub).hex);
+
+            if (chartSubjectInstance) chartSubjectInstance.destroy();
+            const ctx1 = document.getElementById('chartSubjects').getContext('2d');
+            chartSubjectInstance = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'ساعات مطالعه',
+                        data: dataHours,
+                        backgroundColor: bgColors,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { color: textColor, callback: v => toFaDigits(v) } },
+                        x: { ticks: { color: textColor } }
+                    }
+                }
+            });
+
+            // Chart 3: Completion Status
+            if (chartCompletionInstance) chartCompletionInstance.destroy();
+            const ctx2 = document.getElementById('chartCompletion').getContext('2d');
+            chartCompletionInstance = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['خوانده شده', 'باقی‌مانده'],
+                    datasets: [{
+                        data: [completedSessions.length, pendingCount],
+                        backgroundColor: ['#10b981', '#f43f5e'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: textColor } } },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // CSV Export
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            csvContent += "درس,تاریخ,از ساعت,تا ساعت,وضعیت,موضوع\n";
+
+            sessions.forEach(s => {
+                const row = [
+                    s.subject,
+                    formatFaDate(s.date),
+                    s.startTime,
+                    s.endTime,
+                    s.status,
+                    s.topic ? `"${s.topic}"` : ''
+                ].join(",");
+                csvContent += row + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "AVM_Academic_Planner_export.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
