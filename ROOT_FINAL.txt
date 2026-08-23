@@ -1,0 +1,1 @@
+Final root source is FINAL_ROOT_SOURCE.html and must replace index.html.
