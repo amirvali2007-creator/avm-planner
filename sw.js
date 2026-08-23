@@ -1,3 +1,3 @@
-self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
-self.addEventListener('activate', e => e.waitUntil((async()=>{try{const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)));}catch(_e){} try{await self.registration.unregister();}catch(_e){} try{const cs=await self.clients.matchAll({type:'window'});cs.forEach(c=>c.navigate(c.url));}catch(_e){}})()));
-self.addEventListener('fetch', e => { if(e.request.method !== 'GET') return; e.respondWith(fetch(e.request,{cache:'no-store'})); });
+self.addEventListener('install',event=>event.waitUntil(self.skipWaiting()));
+self.addEventListener('activate',event=>event.waitUntil(self.registration.unregister().then(()=>self.clients.claim())));
+self.addEventListener('fetch',event=>{if(event.request.method==='GET') event.respondWith(fetch(event.request,{cache:'no-store'}));});
