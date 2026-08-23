@@ -1,0 +1,1 @@
+Canonical GitHub Pages root must serve the self-contained editable index.html. No runtime dependency on app.html or planner.b64.
