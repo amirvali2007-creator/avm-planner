@@ -11,7 +11,7 @@ try{
  if(!('DecompressionStream'in window))throw Error('browser gzip support unavailable');
  const out=await new Response(new Blob([u8]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
  if(!out.includes('پلنر تحصیلی AVM')||!out.includes('planner-table-body')||!out.includes('openEditSessionModal'))throw Error('planner integrity check failed');
- const patch=`<script>(function(){
+ const patch='<scr'+'ipt>(function(){
  const DEF=['تغذیه','فیزیولوژی','بیوشیمی','زبان','استراحت / تفریح'];
  const KEYS=['avm_original_subjects_v1','avm_planner_subjects_data_v2'];
  function merge(){try{let a=[...DEF];for(const k of KEYS){const x=JSON.parse(localStorage.getItem(k)||'null');if(Array.isArray(x))for(const s of x)if(typeof s==='string'&&s&&!a.includes(s))a.push(s)}if(Array.isArray(window.subjects)){for(const s of window.subjects)if(typeof s==='string'&&s&&!a.includes(s))a.push(s);window.subjects=a}for(const k of KEYS)localStorage.setItem(k,JSON.stringify(a));return a}catch(e){return DEF}}
@@ -37,7 +37,7 @@ try{
    makeEditable(); if(typeof renderTable==='function')renderTable(); if(typeof renderMonthlyCalendar==='function')renderMonthlyCalendar(); else addMonthlyEditors();
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(install,0)); else setTimeout(install,0); setTimeout(install,700); setTimeout(install,1800);
-})();</script>`;
- document.open();document.write(out.replace('</body>',patch+'</body>'));document.close();
+})();<\\/scr'+'ipt>';
+ document.open();document.write(out.replace('<\\/body>',patch+'<\\/body>'));document.close();
 }catch(e){document.getElementById('boot').innerHTML='AVM Planner could not load. Please refresh once.'}
 })();</script></body></html>
